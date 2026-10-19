@@ -7,7 +7,7 @@ models on them, serves everything through a REST API, and presents it in an
 interactive React dashboard with a built-in AI chatbot.
 
 **Author:** Gudimetla Hema Kota Nagu · Roll No. 23ME1A5421
-
+APP: https://hospital-bi-platform.vercel.app
 ---
 
 ## What it does
