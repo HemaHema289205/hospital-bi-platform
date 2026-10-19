@@ -1,0 +1,43 @@
+{
+  "admission_forecast": {
+    "model": "Gradient Boosting",
+    "target": "daily admissions",
+    "train_days": 543,
+    "test_days": 136,
+    "mae": 6.637,
+    "rmse": 8.517,
+    "r2": 0.387,
+    "baseline_mae": 8.986,
+    "mean_actual": 31.49,
+    "all_models": [
+      {
+        "name": "Ridge Regression",
+        "mae": 6.849,
+        "rmse": 8.641,
+        "r2": 0.369
+      },
+      {
+        "name": "Gradient Boosting",
+        "mae": 6.637,
+        "rmse": 8.517,
+        "r2": 0.387
+      },
+      {
+        "name": "Random Forest",
+        "mae": 6.827,
+        "rmse": 8.86,
+        "r2": 0.337
+      }
+    ]
+  },
+  "length_of_stay": {
+    "model": "RandomForestRegressor + OneHotEncoder pipeline",
+    "target": "length of stay (days)",
+    "train_rows": 18706,
+    "test_rows": 4658,
+    "mae": 2.041,
+    "rmse": 2.827,
+    "r2": 0.258,
+    "mean_actual": 3.66
+  }
+}

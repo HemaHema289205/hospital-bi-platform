@@ -1,0 +1,27 @@
+# Render Blueprint - deploys the FastAPI backend.
+# Render dashboard -> New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: hospitalflow-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DB_TYPE
+        value: sqlite
+      - key: LLM_PROVIDER
+        value: builtin
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: TOKEN_HOURS
+        value: "12"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DOCTOR_PASSWORD
+        sync: false
+      - key: STAFF_PASSWORD
+        sync: false
