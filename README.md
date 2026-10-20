@@ -15,7 +15,7 @@ APP: https://hospital-bi-platform.vercel.app
 | Capability | Where you see it |
 |---|---|
 | Sign-in with demo hospital accounts | Login screen |
-| Real-time hospital overview (visits, admissions, discharges, LOS, revenue) | Dashboard |
+| Interactive hospital overview for any date range (visits, admissions, discharges, LOS, revenue) | Dashboard |
 | Patient flow trend, demographics, top conditions, recent encounters | Dashboard |
 | Department-wise performance, bed occupancy, waiting times, peak hours | Patient Flow Analytics |
 | Admission forecasting + length-of-stay prediction (scikit-learn) | ML Predictions |
@@ -110,6 +110,20 @@ are set in `.env`.
 Step-by-step instructions (including what to do when something goes wrong) are in
 **[RUN_GUIDE.md](RUN_GUIDE.md)**.
 
+> **About the data.** The dataset is synthetic: `scripts/00_generate_sample_data.py`
+> creates two years of Synthea-style records, which the pipeline cleans and loads.
+> The dashboards are a snapshot of that data, not a live hospital feed.
+
+### Running the tests
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+`tests/test_api.py` signs in, checks that every data endpoint is locked without a
+token, and exercises the dashboard, ML, reports and chatbot endpoints.
+
 ---
 
 ## Project layout
@@ -137,8 +151,11 @@ hospital-bi-platform/
 ├── models/                  trained .pkl files + metrics.json   (generated)
 ├── sql/schema.sql           reference DDL (needed only for MySQL)
 ├── frontend/                React + Vite + TypeScript + Tailwind app
+├── tests/                   API tests (pytest)
 ├── docs/ARCHITECTURE.md     how every layer works, for the report
 ├── requirements.txt
+├── requirements-dev.txt     requirements.txt + pytest
+├── .python-version          Python version used by Render (3.11.9)
 ├── setup.sh / setup.bat     one-time setup
 └── start.sh / start.bat     run both servers
 ```

@@ -48,7 +48,7 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
             Hospital Operations Dashboard
           </h1>
           <p className="mt-0.5 text-[13px] text-ink-soft">
-            Real-time insights into patient flow, hospital performance and predictions
+            Insights into patient flow, hospital performance and predictions
           </p>
         </div>
         <DateRange start={start} end={end} days={days} onChangeDays={setDays} />
