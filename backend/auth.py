@@ -24,19 +24,25 @@ from backend import config
 
 # ---------------------------------------------------------------- accounts
 # Username -> account details. The admin password can be changed in .env.
+DEFAULT_PASSWORDS = {
+    "admin": "admin123",
+    "doctor": "doctor123",
+    "staff": "staff123",
+}
+
 USERS: dict[str, dict] = {
     "admin": {
-        "password": os.getenv("ADMIN_PASSWORD", "admin123"),
+        "password": os.getenv("ADMIN_PASSWORD", DEFAULT_PASSWORDS["admin"]),
         "name": "Hema",
         "role": "Hospital Administrator",
     },
     "doctor": {
-        "password": os.getenv("DOCTOR_PASSWORD", "doctor123"),
+        "password": os.getenv("DOCTOR_PASSWORD", DEFAULT_PASSWORDS["doctor"]),
         "name": "Dr. Ravi Kumar",
         "role": "Doctor",
     },
     "staff": {
-        "password": os.getenv("STAFF_PASSWORD", "staff123"),
+        "password": os.getenv("STAFF_PASSWORD", DEFAULT_PASSWORDS["staff"]),
         "name": "Keerthi",
         "role": "Operations Staff",
     },
@@ -119,8 +125,14 @@ def public_user(username: str) -> dict:
 
 
 def demo_accounts() -> list[dict]:
-    """Shown on the login screen so the demo credentials are never a mystery."""
+    """
+    Shown on the login screen so the demo credentials are never a mystery.
+
+    Only accounts still on their default demo password are listed - once a
+    real password is set in the environment it is never sent to the browser.
+    """
     return [
         {"username": name, "password": u["password"], "role": u["role"]}
         for name, u in USERS.items()
+        if u["password"] == DEFAULT_PASSWORDS[name]
     ]

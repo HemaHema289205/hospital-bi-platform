@@ -10,17 +10,44 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from backend import auth, config, chatbot, ml_service, queries
 from backend.database import table_exists
 
+# Everything else under /api needs a signed-in user.
+PUBLIC_PATHS = {
+    "/",
+    "/api/health",
+    "/api/auth/login",
+    "/api/auth/me",
+    "/api/auth/demo-accounts",
+}
+
+
+def _user_from_header(authorization: Optional[str]) -> dict:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Not signed in")
+    try:
+        return auth.read_token(authorization.split(" ", 1)[1])
+    except auth.AuthError as exc:
+        raise HTTPException(status_code=401, detail=str(exc))
+
+
+def require_user(request: Request) -> None:
+    """Applied to every route; lets the public ones through."""
+    if request.url.path in PUBLIC_PATHS:
+        return
+    _user_from_header(request.headers.get("authorization"))
+
+
 app = FastAPI(
     title="HospitalFlow AI API",
     description="AI-Enabled Hospital Operations and Patient-Flow BI Platform",
     version="1.0.0",
+    dependencies=[Depends(require_user)],
 )
 
 # The React dev server runs on a different port, so the browser needs this.
@@ -102,12 +129,7 @@ def auth_login(req: LoginRequest):
 @app.get("/api/auth/me", tags=["auth"])
 def auth_me(authorization: Optional[str] = Header(default=None)):
     """Used by the frontend on page load to check a saved session."""
-    if not authorization or not authorization.lower().startswith("bearer "):
-        raise HTTPException(status_code=401, detail="Not signed in")
-    try:
-        return auth.read_token(authorization.split(" ", 1)[1])
-    except auth.AuthError as exc:
-        raise HTTPException(status_code=401, detail=str(exc))
+    return _user_from_header(authorization)
 
 
 @app.get("/api/auth/demo-accounts", tags=["auth"])

@@ -13,6 +13,8 @@ data/processed/
 # Node
 frontend/node_modules/
 frontend/dist/
+frontend/.vite/
+frontend/tsconfig.tsbuildinfo
 
 # Editors / OS
 .vscode/
