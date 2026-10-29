@@ -193,6 +193,10 @@ button:disabled {
 .recharts-tooltip-label {
   color: var(--c-ink-soft) !important;
 }
+/* Item rows default to the series colour, or #000 on pies, which vanishes in dark mode */
+.recharts-tooltip-item {
+  color: var(--c-ink) !important;
+}
 .recharts-surface:focus {
   outline: none;
 }

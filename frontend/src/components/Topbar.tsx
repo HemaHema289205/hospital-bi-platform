@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Bell, LogOut, Menu, Moon, Search, Sun, User } from 'lucide-react'
+import { LogOut, Menu, Moon, Search, Sun, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import type { EncounterRow } from '../types'
@@ -105,9 +105,6 @@ export function Topbar({
           title={dark ? 'Light mode' : 'Dark mode'}
         >
           {dark ? <Sun size={17} /> : <Moon size={17} />}
-        </button>
-        <button className="btn h-9 w-9 !px-0" aria-label="Notifications">
-          <Bell size={17} />
         </button>
         <div className="flex items-center gap-2.5 pl-1">
           <div
