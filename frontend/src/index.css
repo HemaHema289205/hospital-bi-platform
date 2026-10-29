@@ -26,6 +26,15 @@
   --c-nav-ink: #ffffff;
   --c-nav-mute: #93a7c4;
 
+  /* app sidebar: light panel in light mode, navy in dark mode */
+  --c-side: #ffffff;
+  --c-side-border: #e4e9f2;
+  --c-side-ink: #0f172a;
+  --c-side-mute: #475569;
+  --c-side-icon: #5b6b85;
+  --c-side-active: #e3edfd;
+  --c-side-active-ink: #1d6ff2;
+
   --c-ok: #16a34a;
   --c-warn: #ea8a1e;
   --c-bad: #e11d48;
@@ -56,6 +65,14 @@
   --c-nav-soft: #16263f;
   --c-nav-ink: #f1f5f9;
   --c-nav-mute: #8fa3bf;
+
+  --c-side: #0a1424;
+  --c-side-border: #1b2a44;
+  --c-side-ink: #f1f5f9;
+  --c-side-mute: #c3cfe0;
+  --c-side-icon: #8fa3bf;
+  --c-side-active: #1d6ff2;
+  --c-side-active-ink: #ffffff;
 
   --c-ok: #34d399;
   --c-warn: #fbbf24;

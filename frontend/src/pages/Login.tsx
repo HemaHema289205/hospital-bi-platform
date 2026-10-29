@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BarChart3, Brain, Eye, EyeOff, Loader2, LockKeyhole, MessageSquare, User } from 'lucide-react'
 import { api } from '../api'
+import Logo from '../components/Logo'
 import { useAuth } from '../lib/auth'
 
 interface DemoAccount {
@@ -51,14 +52,7 @@ export default function Login() {
         style={{ backgroundColor: 'var(--c-nav)', color: 'var(--c-nav-ink)' }}
       >
         <div className="flex items-center gap-3">
-          <div
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-[12px]"
-            style={{ backgroundColor: 'var(--c-brand)' }}
-          >
-            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-              <path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z" fill="#ffffff" />
-            </svg>
-          </div>
+          <Logo size={44} />
           <div>
             <p className="text-[18px] font-bold leading-tight">HospitalFlow AI</p>
             <p className="text-[12px]" style={{ color: 'var(--c-nav-mute)' }}>
@@ -109,14 +103,7 @@ export default function Login() {
         <div className="w-full max-w-[400px]">
           {/* small-screen brand */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-[11px]"
-              style={{ backgroundColor: 'var(--c-brand)' }}
-            >
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-                <path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z" fill="#ffffff" />
-              </svg>
-            </div>
+            <Logo size={40} />
             <div>
               <p className="text-[16px] font-bold leading-tight text-ink">HospitalFlow AI</p>
               <p className="text-[11px] text-ink-mute">Smarter Insights. Healthier Tomorrow.</p>

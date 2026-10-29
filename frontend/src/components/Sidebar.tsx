@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom'
 import {
-  BarChart3, Brain, FileText, LayoutDashboard, MessageSquare, Users,
+  Brain, FileText, Hospital, LayoutDashboard, MessageSquare, Users,
 } from 'lucide-react'
+import Logo from './Logo'
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -14,22 +15,19 @@ const NAV = [
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <aside
-      className="flex h-full w-[260px] shrink-0 flex-col"
-      style={{ backgroundColor: 'var(--c-nav)', color: 'var(--c-nav-ink)' }}
+      className="flex h-full w-[260px] shrink-0 flex-col border-r"
+      style={{
+        backgroundColor: 'var(--c-side)',
+        borderColor: 'var(--c-side-border)',
+        color: 'var(--c-side-ink)',
+      }}
     >
       {/* brand */}
       <div className="flex items-center gap-3 px-5 pb-6 pt-6">
-        <div
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-[11px]"
-          style={{ backgroundColor: 'var(--c-brand)' }}
-        >
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-            <path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z" fill="#ffffff" />
-          </svg>
-        </div>
+        <Logo size={42} />
         <div className="min-w-0">
           <p className="truncate text-[16px] font-bold leading-tight">HospitalFlow AI</p>
-          <p className="text-[11px] leading-snug" style={{ color: 'var(--c-nav-mute)' }}>
+          <p className="text-[11px] leading-snug" style={{ color: 'var(--c-side-mute)' }}>
             Smarter Insights. Healthier Tomorrow.
           </p>
         </div>
@@ -45,13 +43,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             onClick={onNavigate}
             className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13.5px] font-medium transition-colors"
             style={({ isActive }) => ({
-              backgroundColor: isActive ? 'var(--c-brand)' : 'transparent',
-              color: isActive ? '#ffffff' : 'var(--c-nav-mute)',
+              backgroundColor: isActive ? 'var(--c-side-active)' : 'transparent',
+              color: isActive ? 'var(--c-side-active-ink)' : 'var(--c-side-mute)',
             })}
           >
             {({ isActive }) => (
               <>
-                <Icon size={18} className="shrink-0" />
+                <Icon
+                  size={18}
+                  className="shrink-0"
+                  style={{ color: isActive ? 'var(--c-side-active-ink)' : 'var(--c-side-icon)' }}
+                />
                 <span className="truncate">{label}</span>
               </>
             )}
@@ -62,8 +64,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       {/* footer note */}
       <div className="mt-auto px-5 pb-6 pt-8">
         <div className="flex items-start gap-3">
-          <BarChart3 size={20} className="mt-0.5 shrink-0" style={{ color: 'var(--c-nav-mute)' }} />
-          <p className="text-[11.5px] leading-snug" style={{ color: 'var(--c-nav-mute)' }}>
+          <Hospital size={22} className="mt-0.5 shrink-0" style={{ color: 'var(--c-brand)' }} />
+          <p className="text-[11.5px] leading-snug" style={{ color: 'var(--c-side-mute)' }}>
             AI-Enabled Hospital Operations and Patient Flow Intelligence Platform
           </p>
         </div>

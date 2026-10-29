@@ -25,15 +25,15 @@ export function KpiCard({ card, index, dark }: { card: KpiCardData; index: numbe
       className="rounded-xl2 border p-4"
       style={{
         backgroundColor: dark ? tone.bgDark : tone.bg,
-        borderColor: dark ? 'var(--c-border)' : tone.ring,
+        borderColor: dark ? `${tone.icon}66` : tone.ring,
       }}
     >
       <div className="flex items-start gap-3">
         <div
           className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
-          style={{ backgroundColor: dark ? 'rgba(255,255,255,0.08)' : '#ffffff' }}
+          style={{ backgroundColor: dark ? tone.icon : '#ffffff' }}
         >
-          <Icon size={20} color={tone.icon} />
+          <Icon size={20} color={dark ? '#ffffff' : tone.icon} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-[12.5px] font-medium text-ink-soft">{card.label}</p>

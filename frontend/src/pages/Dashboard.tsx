@@ -2,7 +2,10 @@ import {
   Area, AreaChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts'
-import { CalendarDays, TrendingDown, TrendingUp } from 'lucide-react'
+import {
+  Activity, BriefcaseMedical, CalendarDays, ClipboardList, LineChart as LineChartIcon,
+  TrendingDown, TrendingUp, Users,
+} from 'lucide-react'
 import type { RangeCtx } from '../App'
 import { api } from '../api'
 import { useFetch } from '../lib/useFetch'
@@ -71,6 +74,7 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
             <Card
               title="Patient Flow Trend"
+              icon={LineChartIcon}
               className="lg:col-span-3"
               action={
                 <div className="flex flex-wrap items-center gap-3 text-[11.5px] text-ink-soft">
@@ -109,7 +113,7 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
               )}
             </Card>
 
-            <Card title="Patient Demographics" className="lg:col-span-2">
+            <Card title="Patient Demographics" icon={Users} className="lg:col-span-2">
               {demo.loading ? (
                 <Loading />
               ) : demo.error ? (
@@ -163,7 +167,7 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
 
           {/* conditions + predictions */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <Card title="Top Medical Conditions">
+            <Card title="Top Medical Conditions" icon={BriefcaseMedical}>
               {conds.loading ? (
                 <Loading />
               ) : conds.error ? (
@@ -183,7 +187,7 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
               )}
             </Card>
 
-            <Card title="Predictions" subtitle="Machine learning forecasts from scikit-learn">
+            <Card title="Predictions" icon={Activity} subtitle="Machine learning forecasts from scikit-learn">
               {fc.loading ? (
                 <Loading />
               ) : fc.error ? (
@@ -215,6 +219,7 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
           {/* recent encounters */}
           <Card
             title="Recent Patient Encounters"
+            icon={ClipboardList}
             action={
               <span className="flex items-center gap-1.5 text-[11.5px] text-ink-mute">
                 <CalendarDays size={13} /> latest first

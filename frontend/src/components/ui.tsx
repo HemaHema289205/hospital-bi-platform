@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react'
 import { AlertTriangle, Loader2 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 /* ------------------------------------------------------------ Card */
 export function Card({
-  title, subtitle, action, children, className = '', bodyClass = '',
+  title, subtitle, icon: Icon, action, children, className = '', bodyClass = '',
 }: {
   title?: string
   subtitle?: string
+  icon?: LucideIcon
   action?: ReactNode
   children: ReactNode
   className?: string
@@ -16,9 +18,19 @@ export function Card({
     <section className={`card flex flex-col ${className}`}>
       {(title || action) && (
         <header className="flex items-start justify-between gap-3 px-5 pt-4 pb-2">
-          <div>
-            {title && <h2 className="card-title">{title}</h2>}
-            {subtitle && <p className="text-[12px] text-ink-mute mt-0.5">{subtitle}</p>}
+          <div className="flex items-start gap-2.5">
+            {Icon && (
+              <span
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full"
+                style={{ backgroundColor: 'var(--c-brand-soft)', color: 'var(--c-brand)' }}
+              >
+                <Icon size={16} />
+              </span>
+            )}
+            <div className={Icon ? 'pt-1' : ''}>
+              {title && <h2 className="card-title">{title}</h2>}
+              {subtitle && <p className="text-[12px] text-ink-mute mt-0.5">{subtitle}</p>}
+            </div>
           </div>
           {action}
         </header>
