@@ -17,14 +17,23 @@ export interface RangeCtx {
   end: string
   days: number
   setDays: (d: number) => void
+  /** 'preset' = last N days, 'day' = one chosen date, 'custom' = any start/end */
+  mode: RangeMode
+  setCustom: (mode: 'day' | 'custom', start: string, end: string) => void
+  minDate: string
+  maxDate: string
   dark: boolean
 }
+
+export type RangeMode = 'preset' | 'day' | 'custom'
 
 export default function App() {
   const { user, checking } = useAuth()
   const [dark, setDark] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [days, setDays] = useState(30)
+  const [days, setDaysState] = useState(30)
+  const [custom, setCustomState] = useState<{ mode: 'day' | 'custom'; start: string; end: string } | null>(null)
+  const [minDate, setMinDate] = useState<string>('')
   const [maxDate, setMaxDate] = useState<string>('')
 
   /* ---- theme: remembered per browser, falls back to the OS setting ---- */
@@ -54,20 +63,39 @@ export default function App() {
   useEffect(() => {
     if (!user) return
     api.meta()
-      .then((m) => setMaxDate(m.data_range.max_date))
+      .then((m) => {
+        setMinDate(m.data_range.min_date)
+        setMaxDate(m.data_range.max_date)
+      })
       .catch(() => setMaxDate(new Date().toISOString().slice(0, 10)))
   }, [user])
 
   const range = useMemo(() => {
+    if (custom) return { start: custom.start, end: custom.end }
     const end = maxDate || new Date().toISOString().slice(0, 10)
     return { start: addDays(end, -(days - 1)), end }
-  }, [maxDate, days])
+  }, [maxDate, days, custom])
+
+  const setDays = useCallback((d: number) => {
+    setCustomState(null)
+    setDaysState(d)
+  }, [])
+
+  const setCustom = useCallback((mode: 'day' | 'custom', start: string, end: string) => {
+    // keep the range the right way round even if the user picks them backwards
+    const [s, e] = start <= end ? [start, end] : [end, start]
+    setCustomState({ mode, start: s, end: e })
+  }, [])
 
   const ctx: RangeCtx = {
     start: range.start,
     end: range.end,
     days,
     setDays,
+    mode: custom ? custom.mode : 'preset',
+    setCustom,
+    minDate,
+    maxDate,
     dark,
   }
 

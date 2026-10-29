@@ -23,7 +23,7 @@ const GENDER_COLORS: Record<string, string> = {
 }
 
 export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
-  const { start, end, days, setDays, dark } = ctx
+  const { start, end, dark } = ctx
 
   const kpis = useFetch(() => api.kpis(start, end), [start, end])
   const flow = useFetch(() => api.patientFlow(start, end), [start, end])
@@ -41,6 +41,8 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
   )
 
   const axis = { fontSize: 11, fill: 'var(--c-ink-mute)' }
+  // a single day is one point, which a line alone can't show
+  const fewPoints = (flow.data?.series.length ?? 0) <= 3
 
   return (
     <div className="space-y-4">
@@ -54,7 +56,7 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
             Insights into patient flow, hospital performance and predictions
           </p>
         </div>
-        <DateRange start={start} end={end} days={days} onChangeDays={setDays} />
+        <DateRange ctx={ctx} />
       </div>
 
       {/* --------------------------------------------------- KPI row */}
@@ -105,9 +107,9 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
                     <XAxis dataKey="label" tick={axis} tickLine={false} axisLine={false} minTickGap={24} />
                     <YAxis tick={axis} tickLine={false} axisLine={false} width={52} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="visits" name="Visits" stroke={CHART.blue} strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="admissions" name="Admissions" stroke={CHART.green} strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="discharges" name="Discharges" stroke={CHART.violet} strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="visits" name="Visits" stroke={CHART.blue} strokeWidth={2} dot={fewPoints} />
+                    <Line type="monotone" dataKey="admissions" name="Admissions" stroke={CHART.green} strokeWidth={2} dot={fewPoints} />
+                    <Line type="monotone" dataKey="discharges" name="Discharges" stroke={CHART.violet} strokeWidth={2} dot={fewPoints} />
                   </LineChart>
                 </ResponsiveContainer>
               )}

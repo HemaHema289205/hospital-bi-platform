@@ -11,7 +11,7 @@ import { CHART, SERIES } from '../lib/colors'
 import { fmtMoney, fmtNumber } from '../lib/format'
 
 export default function PatientFlow({ ctx }: { ctx: RangeCtx }) {
-  const { start, end, days, setDays } = ctx
+  const { start, end } = ctx
 
   const flow = useFetch(() => api.patientFlow(start, end), [start, end])
   const depts = useFetch(() => api.departments(start, end), [start, end])
@@ -31,7 +31,7 @@ export default function PatientFlow({ ctx }: { ctx: RangeCtx }) {
             How patients move through the hospital: departments, beds, waiting times and peak hours
           </p>
         </div>
-        <DateRange start={start} end={end} days={days} onChangeDays={setDays} />
+        <DateRange ctx={ctx} />
       </div>
 
       {/* occupancy over time */}
@@ -49,7 +49,8 @@ export default function PatientFlow({ ctx }: { ctx: RangeCtx }) {
               <XAxis dataKey="label" tick={axis} tickLine={false} axisLine={false} minTickGap={24} />
               <YAxis tick={axis} tickLine={false} axisLine={false} width={52} unit="%" domain={[0, 100]} />
               <Tooltip formatter={(v: number) => [`${v}%`, 'Occupancy']} />
-              <Area type="monotone" dataKey="occupancy" stroke={CHART.blue} strokeWidth={2} fill="url(#occ)" />
+              <Area type="monotone" dataKey="occupancy" stroke={CHART.blue} strokeWidth={2} fill="url(#occ)"
+                dot={(flow.data?.series.length ?? 0) <= 3} />
             </AreaChart>
           </ResponsiveContainer>
         )}

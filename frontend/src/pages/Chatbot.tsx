@@ -17,7 +17,7 @@ const EXAMPLES = [
 ]
 
 export default function Chatbot({ ctx }: { ctx: RangeCtx }) {
-  const { start, end, days, setDays } = ctx
+  const { start, end } = ctx
   const [params] = useSearchParams()
   const initial = params.get('q') ?? undefined
 
@@ -30,7 +30,7 @@ export default function Chatbot({ ctx }: { ctx: RangeCtx }) {
             Ask questions in plain English. Every number comes straight from the database.
           </p>
         </div>
-        <DateRange start={start} end={end} days={days} onChangeDays={setDays} />
+        <DateRange ctx={ctx} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
