@@ -16,9 +16,10 @@ import { ChatPanel } from '../components/ChatPanel'
 import { CHART, SERIES } from '../lib/colors'
 import { fmtNumber } from '../lib/format'
 
-const GENDER_COLORS: Record<string, string> = {
-  Male: CHART.blue,
-  Female: CHART.pink,
+const GROUP_COLORS: Record<string, string> = {
+  Men: CHART.blue,
+  Women: CHART.pink,
+  Children: CHART.orange,
   Other: CHART.slate,
 }
 
@@ -126,7 +127,7 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={demo.data?.gender ?? []}
+                          data={demo.data?.groups ?? []}
                           dataKey="value"
                           nameKey="name"
                           innerRadius={58}
@@ -134,11 +135,11 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
                           paddingAngle={2}
                           stroke="none"
                         >
-                          {(demo.data?.gender ?? []).map((g) => (
-                            <Cell key={g.name} fill={GENDER_COLORS[g.name] ?? CHART.slate} />
+                          {(demo.data?.groups ?? []).map((g) => (
+                            <Cell key={g.name} fill={GROUP_COLORS[g.name] ?? CHART.slate} />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip formatter={(v: number, n: string) => [`${fmtNumber(v)} visits`, n]} />
                       </PieChart>
                     </ResponsiveContainer>
                     <div className="pointer-events-none absolute inset-0 grid place-items-center">
@@ -151,16 +152,17 @@ export default function Dashboard({ ctx }: { ctx: RangeCtx }) {
                     </div>
                   </div>
                   <ul className="flex-1 space-y-2.5">
-                    {(demo.data?.gender ?? []).map((g) => (
+                    {(demo.data?.groups ?? []).map((g) => (
                       <li key={g.name} className="flex items-center gap-2 text-[12.5px]">
                         <span
                           className="inline-block h-2.5 w-2.5 rounded-full"
-                          style={{ backgroundColor: GENDER_COLORS[g.name] ?? CHART.slate }}
+                          style={{ backgroundColor: GROUP_COLORS[g.name] ?? CHART.slate }}
                         />
                         <span className="flex-1 text-ink-soft">{g.name}</span>
                         <span className="font-semibold tabular-nums text-ink">{g.pct}%</span>
                       </li>
                     ))}
+                    <li className="pt-1 text-[11px] text-ink-mute">Children = under 18</li>
                   </ul>
                 </div>
               )}

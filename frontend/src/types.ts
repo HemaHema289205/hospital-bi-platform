@@ -39,6 +39,8 @@ export interface NameValue {
 export interface Demographics {
   total: number
   gender: NameValue[]
+  /** Men and Women are adults (18+), Children are under 18 */
+  groups: NameValue[]
   age_bands: NameValue[]
 }
 
@@ -51,6 +53,9 @@ export interface Department {
   avg_wait: number
   revenue: number
   pct: number
+  men: number
+  women: number
+  children: number
 }
 
 export interface Ward {
@@ -124,6 +129,10 @@ export interface LosResponse {
   predicted_days: number
   range_low: number
   range_high: number
+  /** set only for outpatient visits, which are measured in hours, not days */
+  predicted_hours?: number
+  hours_low?: number
+  hours_high?: number
   risk_level: string
   recommendation: string
   model: string

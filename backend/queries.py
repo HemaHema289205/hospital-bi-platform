@@ -171,7 +171,24 @@ def demographics(start: str, end: str) -> dict:
     for a in age:
         a["pct"] = round(a["value"] / total * 100, 1)
 
-    return {"total": total, "gender": gender, "age_bands": age}
+    # Men / Women are adults; anyone under 18 counts as a child
+    groups = query_rows(
+        """
+        SELECT CASE WHEN AGE_BAND = '0-17' THEN 'Children'
+                    WHEN GENDER_LABEL = 'Male' THEN 'Men'
+                    WHEN GENDER_LABEL = 'Female' THEN 'Women'
+                    ELSE 'Other' END AS name,
+               COUNT(*) AS value
+        FROM fact_encounters
+        WHERE VISIT_DATE BETWEEN :start AND :end
+        GROUP BY name ORDER BY value DESC
+        """,
+        {"start": start, "end": end},
+    )
+    for g in groups:
+        g["pct"] = round(g["value"] / total * 100, 1)
+
+    return {"total": total, "gender": gender, "groups": groups, "age_bands": age}
 
 
 # ---------------------------------------------------------- conditions
@@ -212,7 +229,10 @@ def departments(start: str, end: str) -> list[dict]:
                AVG(CASE WHEN IS_ADMISSION = 1 AND LENGTH_OF_STAY > 0
                         THEN LENGTH_OF_STAY END) AS avg_los,
                AVG(WAIT_MINUTES)   AS avg_wait,
-               SUM(TOTAL_CLAIM_COST) AS revenue
+               SUM(TOTAL_CLAIM_COST) AS revenue,
+               SUM(CASE WHEN AGE_BAND <> '0-17' AND GENDER_LABEL = 'Male' THEN 1 ELSE 0 END)   AS men,
+               SUM(CASE WHEN AGE_BAND <> '0-17' AND GENDER_LABEL = 'Female' THEN 1 ELSE 0 END) AS women,
+               SUM(CASE WHEN AGE_BAND = '0-17' THEN 1 ELSE 0 END) AS children
         FROM fact_encounters
         WHERE VISIT_DATE BETWEEN :start AND :end
         GROUP BY DEPARTMENT ORDER BY visits DESC

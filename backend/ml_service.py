@@ -22,6 +22,7 @@ import sklearn.pipeline          # noqa: F401
 import sklearn.preprocessing     # noqa: F401
 
 from backend import config
+from backend.database import query_one
 
 ADM_PATH = config.MODELS_DIR / "admission_forecast.pkl"
 LOS_PATH = config.MODELS_DIR / "los_model.pkl"
@@ -134,6 +135,23 @@ def los_options() -> dict:
     return _load_los()["options"]
 
 
+@lru_cache(maxsize=16)
+def _op_consult_minutes(department: str) -> dict:
+    """Average / shortest / longest outpatient consultation, in minutes."""
+    row = query_one(
+        """
+        SELECT AVG(STAY_HOURS) * 60 AS avg, MIN(STAY_HOURS) * 60 AS min,
+               MAX(STAY_HOURS) * 60 AS max
+        FROM fact_encounters
+        WHERE ENCOUNTERCLASS = 'outpatient' AND DEPARTMENT = :dept
+        """,
+        {"dept": department},
+    ) or {}
+    if not row.get("avg"):
+        return {"avg": 34.0, "min": 15.0, "max": 60.0}
+    return {k: float(row[k]) for k in ("avg", "min", "max")}
+
+
 def predict_los(
     age: int,
     gender: str = "Male",
@@ -145,6 +163,31 @@ def predict_los(
 ) -> dict:
     bundle = _load_los()
     model = bundle["model"]
+
+    # An outpatient (OP) visit never takes a bed, so there is no stay in days
+    # to predict. Instead we estimate the hours spent in hospital: the waiting
+    # time entered plus the average consultation time for that department.
+    if encounter_class == "outpatient":
+        consult = _op_consult_minutes(department)
+        hours = (wait_minutes + consult["avg"]) / 60
+        return {
+            "predicted_days": 0.0,
+            "predicted_hours": round(hours, 1),
+            "range_low": 0.0,
+            "range_high": 0.0,
+            "hours_low": round((wait_minutes + consult["min"]) / 60, 1),
+            "hours_high": round((wait_minutes + consult["max"]) / 60, 1),
+            "risk_level": "Low",
+            "recommendation": (
+                f"Outpatient (OP) visit - about {wait_minutes} min waiting + "
+                f"{consult['avg']:.0f} min with the doctor. The patient goes home "
+                "the same day and no bed is needed."
+            ),
+            "model": "Rule: outpatients are not admitted",
+            "model_mae": 0.0,
+            "input": {"AGE": age, "GENDER_LABEL": gender, "DEPARTMENT": department,
+                      "ENCOUNTERCLASS": encounter_class, "WAIT_MINUTES": wait_minutes},
+        }
 
     dt = datetime.strptime(when, "%Y-%m-%d") if when else datetime.now()
     if is_emergency is None:
@@ -170,7 +213,9 @@ def predict_los(
     pred = float(model.predict(row)[0])
     mae = float(bundle["metrics"].get("mae", 1.0))
 
-    if pred < 2:
+    if pred < 1:
+        risk, note = "Low", "Same-day visit - the patient is expected to go home today."
+    elif pred < 2:
         risk, note = "Low", "Short stay expected - plan a same-week discharge."
     elif pred < 5:
         risk, note = "Medium", "Average stay - standard bed allocation is fine."
@@ -179,7 +224,7 @@ def predict_los(
 
     return {
         "predicted_days": round(pred, 2),
-        "range_low": round(max(0.5, pred - mae), 2),
+        "range_low": round(max(0.0, pred - mae), 2),
         "range_high": round(pred + mae, 2),
         "risk_level": risk,
         "recommendation": note,

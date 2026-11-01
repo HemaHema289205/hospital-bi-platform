@@ -93,6 +93,18 @@ def test_length_of_stay_prediction(headers):
     assert body["range_low"] <= body["predicted_days"] <= body["range_high"]
 
 
+def test_outpatient_has_no_stay(headers):
+    res = client.post("/api/predictions/length-of-stay", headers=headers, json={
+        "age": 40, "gender": "Male", "department": "Cardiology",
+        "encounter_class": "outpatient", "wait_minutes": 20,
+    })
+    assert res.status_code == 200
+    body = res.json()
+    assert body["predicted_days"] == 0
+    # 20 min wait + a 15-60 min consultation
+    assert 0.5 <= body["predicted_hours"] <= 1.5
+
+
 # ------------------------------------------------------------- reports
 def test_select_query_runs(headers):
     res = client.post("/api/reports/query", headers=headers,

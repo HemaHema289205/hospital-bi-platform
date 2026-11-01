@@ -139,7 +139,9 @@ export default function Predictions({ ctx }: { ctx: RangeCtx }) {
             </Field>
             <Field label="Admission type">
               <select value={form.encounter_class} onChange={(e) => setForm({ ...form, encounter_class: e.target.value })}>
-                {(options.data?.ENCOUNTERCLASS ?? ['inpatient', 'emergency']).map((c) => <option key={c}>{c}</option>)}
+                {ADMISSION_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
               </select>
             </Field>
             <Field label="Waiting time (minutes)">
@@ -164,13 +166,27 @@ export default function Predictions({ ctx }: { ctx: RangeCtx }) {
             >
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-[12px] text-ink-soft">Predicted length of stay</p>
-                  <p className="mt-1 text-[32px] font-bold leading-none text-ink">
-                    {los.predicted_days} <span className="text-[16px] font-semibold text-ink-soft">days</span>
-                  </p>
-                  <p className="mt-1.5 text-[11.5px] text-ink-mute">
-                    likely range {los.range_low} – {los.range_high} days
-                  </p>
+                  {los.predicted_hours != null ? (
+                    <>
+                      <p className="text-[12px] text-ink-soft">Expected time in hospital (OP visit)</p>
+                      <p className="mt-1 text-[32px] font-bold leading-none text-ink">
+                        {los.predicted_hours} <span className="text-[16px] font-semibold text-ink-soft">hours</span>
+                      </p>
+                      <p className="mt-1.5 text-[11.5px] text-ink-mute">
+                        likely range {los.hours_low} – {los.hours_high} hours · same day, no bed
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-[12px] text-ink-soft">Predicted length of stay</p>
+                      <p className="mt-1 text-[32px] font-bold leading-none text-ink">
+                        {los.predicted_days} <span className="text-[16px] font-semibold text-ink-soft">days</span>
+                      </p>
+                      <p className="mt-1.5 text-[11.5px] text-ink-mute">
+                        likely range {los.range_low} – {los.range_high} days
+                      </p>
+                    </>
+                  )}
                 </div>
                 <span
                   className="chip"
@@ -257,6 +273,17 @@ function Stat({ label, value, hint, icon }: { label: string; value: string; hint
     </div>
   )
 }
+
+/**
+ * Visit types the predictor accepts. Outpatient (OP) is never admitted, so the
+ * backend answers 0 days for it; the others go to the length-of-stay model.
+ */
+const ADMISSION_TYPES = [
+  { value: 'inpatient', label: 'Inpatient (IP)' },
+  { value: 'outpatient', label: 'Outpatient (OP)' },
+  { value: 'emergency', label: 'Emergency' },
+  { value: 'urgentcare', label: 'Urgent care' },
+]
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

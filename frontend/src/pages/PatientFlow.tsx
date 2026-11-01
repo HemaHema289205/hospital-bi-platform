@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
@@ -18,6 +19,11 @@ export default function PatientFlow({ ctx }: { ctx: RangeCtx }) {
   const beds = useFetch(() => api.bedOccupancy(start, end), [start, end])
   const waits = useFetch(() => api.waitTimes(start, end), [start, end])
   const weekday = useFetch(() => api.weekdayFlow(start, end), [start, end])
+
+  // department picked in the pie; falls back to the busiest one
+  const [picked, setPicked] = useState<string | null>(null)
+  const deptItems = depts.data?.items ?? []
+  const selected = deptItems.find((d) => d.name === picked) ?? deptItems[0]
   const hourly = useFetch(() => api.hourlyFlow(start, end), [start, end])
 
   const axis = { fontSize: 11, fill: 'var(--c-ink-mute)' }
@@ -57,35 +63,84 @@ export default function PatientFlow({ ctx }: { ctx: RangeCtx }) {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* department share */}
-        <Card title="Department-wise Patient Flow">
+        {/* department share: click a slice or a name to see who that department treats */}
+        <Card title="Department-wise Patient Flow" subtitle="Click a department to see men, women and children">
           {depts.loading ? <Loading /> : depts.error ? <ErrorBox message={depts.error} /> : (
-            <div className="flex flex-col items-center gap-3 sm:flex-row">
-              <ResponsiveContainer width="100%" height={230}>
-                <PieChart>
-                  <Pie
-                    data={depts.data?.items ?? []}
-                    dataKey="visits"
-                    nameKey="name"
-                    innerRadius={52}
-                    outerRadius={88}
-                    paddingAngle={2}
-                    stroke="none"
-                  >
-                    {(depts.data?.items ?? []).map((_, i) => (
-                      <Cell key={i} fill={SERIES[i % SERIES.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(v: number, n: string) => [fmtNumber(v), n]} />
-                  <Legend
-                    layout="vertical"
-                    align="right"
-                    verticalAlign="middle"
-                    iconType="circle"
-                    wrapperStyle={{ fontSize: 11.5, color: 'var(--c-ink-soft)' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="h-[200px] w-full shrink-0 sm:w-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={deptItems}
+                      dataKey="visits"
+                      nameKey="name"
+                      innerRadius={50}
+                      outerRadius={88}
+                      paddingAngle={2}
+                      stroke="none"
+                      onClick={(d: { name: string }) => setPicked(d.name)}
+                      className="cursor-pointer"
+                    >
+                      {deptItems.map((d, i) => (
+                        <Cell
+                          key={d.name}
+                          fill={SERIES[i % SERIES.length]}
+                          fillOpacity={selected && d.name !== selected.name ? 0.35 : 1}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(v: number, n: string) => [`${fmtNumber(v)} visits`, n]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="min-w-0 flex-1 space-y-3">
+                <div className="flex flex-wrap gap-1.5">
+                  {deptItems.map((d, i) => (
+                    <button
+                      key={d.name}
+                      type="button"
+                      onClick={() => setPicked(d.name)}
+                      className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] transition-colors"
+                      style={{
+                        borderColor: d.name === selected?.name ? SERIES[i % SERIES.length] : 'var(--c-border)',
+                        backgroundColor: d.name === selected?.name ? 'var(--c-surface-2)' : 'transparent',
+                        color: d.name === selected?.name ? 'var(--c-ink)' : 'var(--c-ink-soft)',
+                      }}
+                    >
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: SERIES[i % SERIES.length] }} />
+                      {d.name}
+                    </button>
+                  ))}
+                </div>
+
+                {selected && (
+                  <div className="rounded-xl2 border p-3" style={{ borderColor: 'var(--c-border)', backgroundColor: 'var(--c-surface-2)' }}>
+                    <div className="mb-2.5 flex items-baseline justify-between gap-2">
+                      <p className="text-[14px] font-semibold text-ink">{selected.name}</p>
+                      <p className="text-[12px] text-ink-soft">
+                        <span className="font-semibold text-ink">{fmtNumber(selected.visits)}</span> visits · {selected.pct}% of all
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {[
+                        { label: 'Men', value: selected.men, color: CHART.blue },
+                        { label: 'Women', value: selected.women, color: CHART.pink },
+                        { label: 'Children', value: selected.children, color: CHART.orange },
+                      ].map((g) => (
+                        <MeterRow
+                          key={g.label}
+                          label={`${g.label}: ${fmtNumber(g.value)}`}
+                          pct={(g.value / (selected.visits || 1)) * 100}
+                          value={`${((g.value / (selected.visits || 1)) * 100).toFixed(1)}%`}
+                          color={g.color}
+                        />
+                      ))}
+                    </div>
+                    <p className="mt-2 text-[11px] text-ink-mute">Children: under 18 · Men, Women: 18+</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </Card>
